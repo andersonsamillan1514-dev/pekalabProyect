@@ -17,13 +17,21 @@ public class UsuarioService {
     private final PasswordEncoder passwordEncoder;
 
     public Usuario registrarUsuario(Usuario usuario) {
-        // Encriptar la contraseña (si es motorizado usamos la estándar)
-        if ("MOTORIZADO".equals(usuario.getRol())) {
-            usuario.setPassword(passwordEncoder.encode("Motos2026"));
-        } else {
-            usuario.setPassword(passwordEncoder.encode("Admin123")); // Cambia esto después
+        // 1. Verificamos que el usuario traiga una contraseña
+        if (usuario.getPassword() == null || usuario.getPassword().isEmpty()) {
+            throw new RuntimeException("La contraseña no puede estar vacía");
         }
+
+        // 2. ENCRIPTAMOS LO QUE VIENE EN EL OBJETO (lo que mandas desde Postman)
+        // Ya no usamos "Admin123" fijo, usamos usuario.getPassword()
+        String passwordEncriptada = passwordEncoder.encode(usuario.getPassword());
+
+        // 3. Guardamos el hash en el usuario
+        usuario.setPassword(passwordEncriptada);
+
+        // 4. Aseguramos que el estado sea activo por defecto
         usuario.setEstado(true);
+
         return usuarioRepository.save(usuario);
     }
     public Usuario buscarPorId(UUID id) {

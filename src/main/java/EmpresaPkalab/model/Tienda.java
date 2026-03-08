@@ -22,6 +22,14 @@ public class Tienda {
     @Column(name = "nombre_tienda", unique = true, nullable = false)
     private String nombreTienda;
 
+    //AGREGAR COLUMNA RUC
+    @Column(name="ruc", length = 11)
+    private String ruc;
+
+    //COLUMNA DE ESTADO
+    @Column(name= "estado")
+    private Boolean estado=true;
+    
     private String direccion;
 
     // Ubicación GPS de la tienda para calcular distancias

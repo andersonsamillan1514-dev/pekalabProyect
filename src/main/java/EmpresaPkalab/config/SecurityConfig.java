@@ -39,10 +39,14 @@ public class SecurityConfig {
 
                         // 2. EL CRUD DE USUARIOS: Solo para quien tenga autoridad "ADMIN"
                         // Esto incluye: Registrar, Listar, Buscar por DNI, Editar por DNI y Checkbox
-                        .requestMatchers("/api/usuarios/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/usuarios/**").hasAuthority("ADMINISTRADOR")
                         //REQUERIMIENTO IMPORTAR EXCEL
-                        .requestMatchers("/api/requerimientos/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/requerimientos/**").hasAuthority("ADMINISTRADOR")
                         // 3. CUALQUIER OTRA RUTA: Pide estar autenticado
+
+                        // 4 .RUTA PARA EL CRUD DE TIENDA
+                        .requestMatchers("/api/tiendas/**").hasAuthority("ADMINISTRADOR")
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
