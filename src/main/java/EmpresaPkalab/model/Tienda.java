@@ -29,7 +29,7 @@ public class Tienda {
     //COLUMNA DE ESTADO
     @Column(name= "estado")
     private Boolean estado=true;
-    
+
     private String direccion;
 
     // Ubicación GPS de la tienda para calcular distancias

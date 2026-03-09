@@ -1,6 +1,7 @@
 package EmpresaPkalab.controller;
 
 import EmpresaPkalab.model.Tienda;
+import EmpresaPkalab.repository.TiendaRepository; // Importación necesaria
 import EmpresaPkalab.service.TiendaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,12 +11,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tiendas")
-@RequiredArgsConstructor
+@RequiredArgsConstructor // Esta anotación inyectará ambos automáticamente
 public class TiendaController {
 
     private final TiendaService tiendaService;
+    private final TiendaRepository tiendaRepository; // <--- FALTA ESTA LÍNEA
 
-    // POST: Para registrar tiendas con GPS (Ya lo tenías)
     @PostMapping("/registrar")
     public ResponseEntity<Tienda> registrarTienda(
             @RequestBody Tienda tienda,
@@ -24,10 +25,15 @@ public class TiendaController {
         return ResponseEntity.ok(tiendaService.guardarTienda(tienda, latitud, longitud));
     }
 
-    // GET: El que necesitabas para ver todos los nombres antes del Excel
     @GetMapping
     public ResponseEntity<List<Tienda>> listarTiendas() {
-        List<Tienda> tiendas = tiendaService.obtenerTodas();
-        return ResponseEntity.ok(tiendas);
+        return ResponseEntity.ok(tiendaService.obtenerTodas());
+    }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Tienda>> buscar(@RequestParam String filtro) {
+        // Asegúrate de que el método se llame buscarTiendasFlex (con 's' y 's')
+        // tal como lo pusiste en tu Repository
+        return ResponseEntity.ok(tiendaRepository.buscarTiendasFlex(filtro));
     }
 }
