@@ -1,5 +1,6 @@
 package EmpresaPkalab.service;
 
+import EmpresaPkalab.dto.TiendaDTO;
 import EmpresaPkalab.model.Tienda;
 import EmpresaPkalab.repository.TiendaRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -16,40 +18,46 @@ import java.util.UUID;
 public class TiendaService {
 
     private final TiendaRepository tiendaRepository;
+    // Factoría para crear puntos geográficos (SRID 4326 es el estándar para GPS)
     private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
-    // 1. GUARDAR / REGISTRAR
-    public Tienda guardarTienda(Tienda tienda, double latitud, double longitud) {
-        Point puntoTienda = geometryFactory.createPoint(new Coordinate(longitud, latitud));
-        tienda.setUbicacion(puntoTienda);
-
-        // Aseguramos que el estado sea true al nacer
-        if (tienda.getEstado() == null) {
-            tienda.setEstado(true);
-        }
-
-        return tiendaRepository.save(tienda);
-    }
-
-    // 2. OBTENER TODAS
-    public List<Tienda> obtenerTodas() {
+    public List<Tienda> listarTodas() {
         return tiendaRepository.findAll();
     }
 
-    // 3. BUSCAR POR ID (Útil para actualizar o ver detalle)
-    public Tienda obtenerPorId(UUID id) {
-        return tiendaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tienda no encontrada con ID: " + id));
+    public List<Tienda> buscarPorNombre(String nombre) {
+        return tiendaRepository.findByNombreTiendaContainingIgnoreCase(nombre);
     }
 
-    // 4. BUSCADOR FLEXIBLE (Para el Admin)
-    public List<Tienda> buscarTiendas(String filtro) {
-        return tiendaRepository.buscarTiendasFlex(filtro);
+    public Tienda registrarTienda(TiendaDTO dto) {
+        Tienda tienda = new Tienda();
+        mapearDtoAEntidad(tienda, dto);
+        return tiendaRepository.save(tienda);
     }
 
-    // 5. ELIMINAR
+    public Tienda actualizarTienda(UUID id, TiendaDTO dto) {
+        Tienda tiendaExistente = tiendaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Tienda no encontrada"));
+        mapearDtoAEntidad(tiendaExistente, dto);
+        return tiendaRepository.save(tiendaExistente);
+    }
+
+    private void mapearDtoAEntidad(Tienda tienda, TiendaDTO dto) {
+        tienda.setNombreTienda(dto.getNombreTienda());
+        tienda.setRuc(dto.getRuc());
+        tienda.setDireccion(dto.getDireccion());
+        tienda.setEstado(dto.getEstado() != null ? dto.getEstado() : true);
+        tienda.setRadioPermitidoMetros(dto.getRadioPermitidoMetros());
+
+        // Convertir Lat/Lng del DTO al Point de PostGIS
+        if (dto.getLatitud() != 0 && dto.getLongitud() != 0) {
+            // Importante: Point usa (Longitud, Latitud)
+            Point punto = geometryFactory.createPoint(new Coordinate(dto.getLongitud(), dto.getLatitud()));
+            tienda.setUbicacion(punto);
+        }
+    }
+
     public void eliminarTienda(UUID id) {
-        Tienda tienda = obtenerPorId(id);
-        tiendaRepository.delete(tienda);
+        tiendaRepository.deleteById(id);
     }
 }
