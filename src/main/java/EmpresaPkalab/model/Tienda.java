@@ -13,7 +13,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Tienda {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(columnDefinition = "uuid")

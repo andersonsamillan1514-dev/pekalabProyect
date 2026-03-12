@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
@@ -22,12 +25,13 @@ public class RequerimientoTienda {
 
     @ManyToOne
     @JoinColumn(name = "tienda_id", nullable = false)
+    @NotFound(action = NotFoundAction.IGNORE) // Evita el crash si la tienda no existe
     private Tienda tienda;
 
     @Column(nullable = false)
     private LocalDate fecha;
 
-    @Column(name = "dia_semana") // Lo que dice "Lunes", "Martes" en tu Excel
+    @Column(name = "dia_semana")
     private String diaSemana;
 
     @Column(name = "hora_inicio", nullable = false)
@@ -36,11 +40,9 @@ public class RequerimientoTienda {
     @Column(name = "hora_fin", nullable = false)
     private LocalTime horaFin;
 
-    // Este es el corazón de la lógica:
-    // Si el Excel dice "3 motorizados", crearemos 3 registros con n_motorizado 1, 2 y 3.
     @Column(name = "n_motorizado", nullable = false)
     private Integer nMotorizado;
 
     @Column
-    private String estado = "PENDIENTE"; // PENDIENTE o ASIGNADO
+    private String estado = "PENDIENTE";
 }

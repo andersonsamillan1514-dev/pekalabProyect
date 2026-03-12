@@ -1,10 +1,12 @@
 package EmpresaPkalab.controller;
 
+import EmpresaPkalab.model.RequerimientoTienda;
 import EmpresaPkalab.service.RequerimientoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/requerimientos")
@@ -14,13 +16,18 @@ public class RequerimientoController {
 
     private final RequerimientoService requerimientoService;
 
+    @GetMapping
+    public ResponseEntity<List<RequerimientoTienda>> listar() {
+        return ResponseEntity.ok(requerimientoService.listarTodo());
+    }
+
     @PostMapping("/importar")
     public ResponseEntity<String> importarExcel(@RequestParam("file") MultipartFile file) {
         try {
             requerimientoService.importarDesdeExcel(file);
-            return ResponseEntity.ok("Excel procesado: Cupos creados individualmente.");
+            return ResponseEntity.ok("Importación exitosa.");
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
+            return ResponseEntity.internalServerError().body("Error al importar: " + e.getMessage());
         }
     }
 }
